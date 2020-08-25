@@ -13,7 +13,8 @@ const SearchInput = Styled(Input.Search)`
 `;
 
 const AppLayout = ({ children }) => {
-    const isLoggedIn = useSelector((state) => state.user.isLoggedIn); // redux 를 이용하여 로그인 여부 관리
+    // redux 중앙 저장소의 state를 받아와서 로그인 여부를 확인
+    const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
     return (
         <>
             <Menu mode="horizontal">

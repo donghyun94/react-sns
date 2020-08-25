@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import Link from "next/link";
 import { Form, Input, Button } from "antd";
 import { useDispatch } from "react-redux";
+// 로그인을 위한 액션 함수 가져오기
 import { loginAction } from "../reducers/user";
 import Styled from "styled-components";
 
@@ -9,10 +10,10 @@ import Styled from "styled-components";
 const ButtonWrapper = Styled.div`margin-top: 10px;`;
 const LoginInput = Styled(Input)`display: block; width: 200px;`;
 
-const LoginForm = ({ setIsLoggedIn }) => {
-    const dispatch = useDispatch();
+const LoginForm = () => {
     const [id, setId] = useState("");
     const [password, setPassword] = useState("");
+    const dispatch = useDispatch();
 
     const onChangeId = useCallback((e) => {
         setId(e.target.value);
@@ -22,8 +23,8 @@ const LoginForm = ({ setIsLoggedIn }) => {
     }, []);
 
     const submitHandler = useCallback(() => {
-        console.log(id, password);
-        dispatch(loginAction({ id, password })); // redux 이용하여 로그인 데이터 전달
+        // redux 액션 함수를 이용하여 로그인 데이터 전달
+        dispatch(loginAction({ id, password }));
     }, [id, password]);
 
     return (
