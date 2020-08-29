@@ -14,7 +14,7 @@ const SearchInput = Styled(Input.Search)`
 
 const AppLayout = ({ children }) => {
     // redux 중앙 저장소의 state를 받아와서 로그인 여부를 확인
-    const isLoggedIn = useSelector((state) => state.user.isLoggedIn);
+    const { me } = useSelector((state) => state.user);
     return (
         <>
             <Menu mode="horizontal">
@@ -38,7 +38,7 @@ const AppLayout = ({ children }) => {
             <Row gutter={4}>
                 <Col xs={24} md={6}>
                     {/* 로그인되어 있으면 유저의 프로필을 보여주고, 그게 아니면 로그인 창을 보여준다. */}
-                    {isLoggedIn ? <UserProfile /> : <LoginForm />}
+                    {me ? <UserProfile /> : <LoginForm />}
                 </Col>
                 <Col xs={24} md={12}>
                     {children}

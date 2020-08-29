@@ -2,6 +2,7 @@
 import { HYDRATE } from "next-redux-wrapper";
 // 여러 파일에 나눠져 있는 reducer들을 합치는 역할을 수행하는 combineReducers
 import { combineReducers } from "redux";
+
 import user from "./user";
 import post from "./post";
 
