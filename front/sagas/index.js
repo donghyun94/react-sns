@@ -1,7 +1,14 @@
 import { all, fork, call, put, takeLatest, delay } from "redux-saga/effects";
+import axios from "axios";
 
 import postSaga from "./post";
 import userSaga from "./user";
+
+// 요청의 기본이 되는 주소
+axios.defaults.baseURL = "http://localhost:3065";
+
+// 브라우저와 백엔드 간의 쿠키 전달을 위한 withCredentials
+axios.defaults.withCredentials = true;
 
 // 제네레이터를 이용한 사가
 export default function* rootSaga() {

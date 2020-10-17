@@ -8,6 +8,9 @@ const initialState = {
     logoutLoading: false, // 로그아웃 시도 중
     logoutDone: false,
     logoutError: null,
+    loadUserLoading: false, // 로그인 된 유저 정보 불러오는 중
+    loadUserDone: false,
+    loadUserError: null,
     signupLoading: false, // 회원가입 시도 중
     signupDone: false,
     signupError: null,
@@ -58,6 +61,10 @@ export const UNFOLLOW_FAILURE = "UNFOLLOW_FAILURE";
 // 나의 게시글 목록을 추가하고 삭제하는 액션
 export const ADD_POST_TO_ME = "ADD_POST_TO_ME";
 export const REMOVE_POST_OF_ME = "REMOVE_POST_OF_ME";
+// 로그인된 사용자의 데이터를 불러오는 액션
+export const LOAD_MY_INFO_REQUEST = "LOAD_MY_INFO_REQUEST";
+export const LOAD_MY_INFO_SUCCESS = "LOAD_MY_INFO_SUCCESS";
+export const LOAD_MY_INFO_FAILURE = "LOAD_MY_INFO_FAILURE";
 
 // 동적으로 로그인 데이터를 바꿀 수 있는 액션 함수
 export const loginRequestAction = (data) => {
@@ -85,11 +92,12 @@ const reducer = (state = initialState, action) => {
             case LOG_IN_SUCCESS:
                 draft.loginLoading = false;
                 draft.loginDone = true;
-                draft.me = dummyUser(action.data);
+                draft.me = action.data;
                 break;
             case LOG_IN_FAILURE:
                 draft.loginLoading = false;
                 draft.loginDone = false;
+                draft.loginError = action.error;
                 break;
 
             // 로그아웃 액션
@@ -108,6 +116,22 @@ const reducer = (state = initialState, action) => {
                 draft.logoutError = action.error;
                 break;
 
+            // 로그인된 정보 불러오기 액션
+            case LOAD_MY_INFO_REQUEST:
+                draft.loadUserLoading = true;
+                draft.loadUserDone = false;
+                draft.loadUserError = null;
+                break;
+            case LOAD_MY_INFO_SUCCESS:
+                draft.loadUserLoading = false;
+                draft.loadUserDone = true;
+                draft.me = action.data;
+                break;
+            case LOAD_MY_INFO_FAILURE:
+                draft.loadUserLoading = false;
+                draft.loadUserError = action.error;
+                break;
+
             // 회원가입 액션
             case SIGN_UP_REQUEST:
                 draft.signupLoading = true;
@@ -120,7 +144,7 @@ const reducer = (state = initialState, action) => {
                 break;
             case SIGN_UP_FAILURE:
                 draft.signupLoading = false;
-                draft.signupError = action.error;
+                draft.signupError = action.error; // user 라우터로부터 온 에러 메세지
                 break;
 
             // 닉네임 변경 액션
@@ -130,6 +154,7 @@ const reducer = (state = initialState, action) => {
                 draft.changeNicknameError = null;
                 break;
             case CHANGE_NICKNAME_SUCCESS:
+                draft.me.nickname = action.data.nickname;
                 draft.changeNicknameLoading = false;
                 draft.changeNicknameDone = true;
                 break;
@@ -146,6 +171,7 @@ const reducer = (state = initialState, action) => {
                 break;
             case FOLLOW_SUCCESS:
                 draft.followLoading = false;
+                draft.me.Followings.push({ id: action.data });
                 draft.followDone = true;
                 break;
             case FOLLOW_FAILURE:
@@ -161,6 +187,7 @@ const reducer = (state = initialState, action) => {
                 break;
             case UNFOLLOW_SUCCESS:
                 draft.unfollowLoading = false;
+                draft.me.Followings = draft.me.Followings.filter((v) => v.id !== action.data); // 그 사람 빼고 목록 갱신
                 draft.unfollowDone = true;
                 break;
             case UNFOLLOW_FAILURE:

@@ -9,8 +9,8 @@ import { useSelector, useDispatch } from "react-redux";
 import CommentForm from "./CommentForm";
 import PostCardContent from "./PostCardContent";
 import PostImages from "./PostImages";
-import { REMOVE_POST_REQUEST } from "../reducers/post";
-// import FollowButton from "./FollowButton";
+import { REMOVE_POST_REQUEST, LIKE_POST_REQUEST, UNLIKE_POST_REQUEST } from "../reducers/post";
+import FollowButton from "./FollowButton";
 
 const CardWrapper = styled.div`
     margin-bottom: 20px;
@@ -18,14 +18,25 @@ const CardWrapper = styled.div`
 
 const PostCard = ({ post }) => {
     const [commentFormOpened, setCommentFormOpened] = useState(false);
-    const [liked, setLiked] = useState(false);
 
     const dispatch = useDispatch();
     const id = useSelector((state) => state.user.me && state.user.me.id);
     const { removePostLoading } = useSelector((state) => state.post);
 
-    const onToggleLike = useCallback(() => {
-        setLiked((prev) => !prev);
+    // 좋아요
+    const onLike = useCallback(() => {
+        dispatch({
+            type: LIKE_POST_REQUEST,
+            data: post.id,
+        });
+    }, []);
+
+    // 좋아요 취소
+    const onUnlike = useCallback(() => {
+        dispatch({
+            type: UNLIKE_POST_REQUEST,
+            data: post.id,
+        });
     }, []);
 
     const onToggleComment = useCallback(() => {
@@ -39,14 +50,17 @@ const PostCard = ({ post }) => {
         });
     }, []);
 
+    const liked = post.Likers.find((v) => v.id === id); // 게시글 좋아요 누른 사람들 중에 내가 있는지
+
     return (
         <CardWrapper key={post.id}>
             <Card
+                style={{ backgroundColor: "transparent" }}
                 // 이미지가 1개 이상일 때 이미지 표시
                 cover={post.Images[0] && <PostImages images={post.Images} />}
                 actions={[
                     <RetweetOutlined key="retweet" />,
-                    liked ? <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onToggleLike} /> : <HeartOutlined key="heart" onClick={onToggleLike} />,
+                    liked ? <HeartTwoTone twoToneColor="#eb2f96" key="heart" onClick={onUnlike} /> : <HeartOutlined key="heart" onClick={onLike} />,
                     <MessageOutlined key="message" onClick={onToggleComment} />,
                     <Popover
                         key="ellipsis"
@@ -69,11 +83,14 @@ const PostCard = ({ post }) => {
                         <EllipsisOutlined />
                     </Popover>,
                 ]}
-                // extra={<FollowButton post={post} />}
+                extra={id && <FollowButton post={post} />}
             >
-                <Card.Meta avatar={<Avatar>{post.User.nickname[0]}</Avatar>} title={post.User.nickname} description={<PostCardContent postData={post.content} />} />
+                <Card.Meta
+                    avatar={<Avatar>{post.User.nickname[0]}</Avatar>}
+                    title={post.User.nickname}
+                    description={<PostCardContent postData={post.content} />}
+                />
             </Card>
-
             {/* 댓글 구현 */}
             {commentFormOpened && (
                 <>
@@ -109,7 +126,7 @@ PostCard.propTypes = {
         id: PropTypes.number,
         User: PropTypes.object,
         content: PropTypes.string,
-        createdAt: PropTypes.object,
+        createdAt: PropTypes.string,
         Comments: PropTypes.arrayOf(PropTypes.any),
         Images: PropTypes.arrayOf(PropTypes.any),
     }),

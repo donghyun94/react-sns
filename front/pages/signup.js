@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Head from "next/head";
 import { Button, Checkbox, Form, Input } from "antd";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,6 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import AppLayout from "../components/AppLayout";
 import useInput from "../hooks/useInput";
 import { SIGN_UP_REQUEST } from "../reducers/user";
+import Router from "next/router";
 
 const Signup = () => {
     const [passwordCheck, setPasswordCheck] = useState("");
@@ -18,7 +19,28 @@ const Signup = () => {
     const [password, onChangePassword] = useInput("");
 
     const dispatch = useDispatch();
-    const { signupLoading } = useSelector((state) => state.user);
+    const { signupLoading, signupDone, signupError, me } = useSelector((state) => state.user);
+
+    // 로그인 상태이면 메인 페이지로 이동
+    useEffect(() => {
+        if (me && me.id) {
+            Router.replace("/");
+        }
+    }, [[me && me.id]]);
+
+    // 회원가입이 완료되면 메인 페이지로 돌아가기
+    useEffect(() => {
+        if (signupDone) {
+            Router.replace("/");
+        }
+    }, [signupDone]);
+
+    // 회원가입 오류
+    useEffect(() => {
+        if (signupError) {
+            alert(signupError);
+        }
+    }, [signupError]);
 
     const onSubmit = () => {
         // 패스워드 같게 썼는지 확인
